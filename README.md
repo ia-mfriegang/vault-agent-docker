@@ -16,7 +16,7 @@ This repo contains a Dockerfile that creates an image with the following:
 ## Diagram
 
 
-<img src="https://raw.githubusercontent.com/ia-mfriegang/vault-agent-docker/main/example/docker-agent_diagram.drawio.png)" />
+<img src="https://raw.githubusercontent.com/ia-mfriegang/vault-agent-docker/main/example/docker-agent_diagram.drawio.png" />
 
 ## Getting Started
 1. Create the Vault roles and approle roles (see examples), make note of the approle role id for both roles, as well as the secret id for the rotate role.
