@@ -5,7 +5,7 @@ This repo contains a Dockerfile that creates an image with the following:
    - agent can use a custom root CA if your Vault uses a private CA for TLS
 
 ## Prereqs and Background
-
+[see the diagram for more info](https://raw.githubusercontent.com/ia-mfriegang/vault-agent-docker/main/example/docker-agent_diagram.jpg)
 - 2 Vault Approle Roles:
   - One role that contains the secrets you want to Vault. We will refer to this as the "regular role"
   - One role that can rotate the secret ID for the role that contains the secrets. We will refer to this as the "rotate role"
@@ -13,10 +13,6 @@ This repo contains a Dockerfile that creates an image with the following:
 - 2 Vault Policies (see examples)
   - one policy for the regular role. This policy can access the path containing the secrets.
   - one policy for the rotate role. This policy can only generate new secret IDs for the regular role.
-## Diagram
-
-
-<img src="https://raw.githubusercontent.com/ia-mfriegang/vault-agent-docker/main/example/docker-agent_diagram.drawio.png" />
 
 ## Getting Started
 1. Create the Vault roles and approle roles (see examples), make note of the approle role id for both roles, as well as the secret id for the rotate role.
