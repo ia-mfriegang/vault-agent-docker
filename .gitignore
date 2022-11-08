@@ -1,5 +1,4 @@
 # config directory has secrets, so that should be ignored altogether
-config
 config/*
 # anything with a .txt extension as well
 *.txt
