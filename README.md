@@ -14,7 +14,7 @@ This repo contains a Dockerfile that creates an image with the following:
   - one policy for the regular role. This policy can access the path containing the secrets.
   - one policy for the rotate role. This policy can only generate new secret IDs for the regular role.
 ## Diagram
-![Diagram](example/docker-agent_diagram.jpg)
+![diagram](example/docker-agent_diagram.jpeg)
 ## Getting Started
 1. Create the Vault roles and approle roles (see examples), make note of the approle role id for both roles, as well as the secret id for the rotate role.
 2. Build the image locally `docker built -t vault_agent_test .`
