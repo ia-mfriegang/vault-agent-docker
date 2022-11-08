@@ -11,4 +11,3 @@ vault write -field=wrapping_token -wrap-ttl=200s -f auth/approle/role/approle_te
 VAULT_TOKEN=`vault write -field=token auth/approle/login role_id=$(cat /etc/vault.d/rotate_roleid.txt) secret_id=$(cat /etc/vault.d/rotate_secretid.txt)` vault write -field=wrapping_token -wrap-ttl=200s -f auth/approle/role/$(cat /etc/vault.d/rolename.txt)/secret-id > /etc/vault.d/wrapped_secret_id
 # Start the agent
 vault agent -config /etc/vault.d/vault-agent.hcl
-

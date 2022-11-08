@@ -3,3 +3,18 @@ config
 config/*
 # anything with a .txt extension as well
 *.txt
+# not a huge deal, but we might as well avoid committing our root ca pubkey as well
+*.pem
+*.crt
+*.ca-bundle
+*.cer
+*.der
+*.p7b
+*.p7s
+*.pfx
+*.p12
+# vault config file
+*.hcl
+# the docker-compose file may also contain secrets
+docker-compose.yml
+docker-compose.yaml
