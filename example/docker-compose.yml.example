@@ -1,0 +1,15 @@
+version: '3.7'
+
+services:
+  vault-agent:
+    image: vault_agent_test
+    restart: always
+    ports:
+      - "8200:8200"
+    volumes:
+      - ./config:/etc/vault.d
+    environment:
+      VAULT_ADDR: "https://yourvault.local:8200" # required
+    #  CUSTOM_CERT: "true"                       # optional
+    #  CUSTOM_CERT_NAME: yourrootcert.pem        # optional
+    container_name: vault-agent
