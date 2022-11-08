@@ -10,17 +10,22 @@ This repo contains a Dockerfile that creates an image with the following:
   - One role that contains the secrets you want to Vault. We will refer to this as the "regular role"
   - One role that can rotate the secret ID for the role that contains the secrets. We will refer to this as the "rotate role"
 
+- 2 Vault Policies (see examples)
+  - one policy for the regular role. This policy can access the path containing the secrets.
+  - one policy for the rotate role. This policy can only generate new secret IDs for the regular role.
+
 ## Getting Started
-1. Build the image locally `docker built -t vault_agent_test .`
-2. Create a docker-compose.yml file (see examples)
-3. Create one of each of the files in the `example/config-examples` directory. You will need the following:
+1. Create the Vault roles and approle roles (see examples), make note of the approle role id for both roles, as well as the secret id for the rotate role.
+2. Build the image locally `docker built -t vault_agent_test .`
+3. Create a docker-compose.yml file (see examples)
+4. Create one of each of the files in the `example/config-examples` directory. You will need the following:
    - `rolename.txt` - this should contain the name of the regular role.
    - `rotate_roleid.txt` - this should contain the role id for the rotate role.
    - `rotate_secretid.txt` - this should contain the secret id for the rotate role.
    - `vault-agent.hcl` - this is the Vault agent config file. Make sure that the address points to your Vault, and that the `example` in `secret_id_response_wrapping_path      = "auth/approle/role/example/secret-id"` gets replaced by the name of the regular role.
    - `yourrootca.pem` - this is optional if you want to use a custom root CA. Make sure to set the environment variables section in the docker-compose file if using this.
-4. Run with `docker-compose up -d`
-5. Check the logs `docker logs vault-agent`, a working container's logs should look something like this:
+5. Run with `docker-compose up -d`
+6. Check the logs `docker logs vault-agent`, a working container's logs should look something like this:
 ```
 2022-11-08T19:34:22.009Z [INFO]  template.server: starting template server
 2022-11-08T19:34:22.010Z [INFO]  template.server: no templates found
@@ -39,4 +44,8 @@ This repo contains a Dockerfile that creates an image with the following:
  ```
 VAULT_TOKEN=`vault write -field=token auth/approle/login role_id=$(cat /etc/vault.d/rotate_roleid.txt) secret_id=$(cat /etc/vault.d/rotate_secretid.txt)` vault write -field=wrapping_token \
 -wrap-ttl=200s -f auth/approle/role/docker/secret-id > /etc/vault.d/wrapped_secret_id
+```
+3. If you can't, try looking up the token, see which policies it has.
+```
+VAULT_TOKEN=`vault write -field=token auth/approle/login role_id=$(cat /etc/vault.d/rotate_roleid.txt) secret_id=$(cat /etc/vault.d/rotate_secretid.txt)`  vault token lookup
 ```

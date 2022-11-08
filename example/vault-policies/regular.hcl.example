@@ -1,0 +1,53 @@
+path "secret/data/example/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "secret/data/example"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+
+# Allow deletion of any secret version
+path "secret/delete/example/*"
+{
+  capabilities = ["update"]
+}
+
+path "secret/delete/example"
+{
+  capabilities = ["update"]
+}
+
+# Allow un-deletion of any secret version
+path "secret/undelete/example/*"
+{
+  capabilities = ["update"]
+}
+
+path "secret/undelete/example"
+{
+  capabilities = ["update"]
+}
+
+# Allow destroy of any secret version
+path "secret/destroy/example/*"
+{
+  capabilities = ["update"]
+}
+
+path "secret/destroy/example"
+{
+  capabilities = ["update"]
+}
+# Allow list and view of metadata and to delete all versions and metadata for a key
+path "secret/metadata/example/*"
+{
+  capabilities = ["list", "read", "delete"]
+}
+
+path "secret/metadata/example"
+{
+  capabilities = ["list", "read", "delete"]
+}

@@ -1,0 +1,3 @@
+path "auth/approle/role/example/secret-id" {
+  capabilities = [ "create", "read", "update" ]
+}
