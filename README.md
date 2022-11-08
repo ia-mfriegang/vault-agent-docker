@@ -1,6 +1,6 @@
 
 
-![diagram](https://raw.githubusercontent.com/ia-mfriegang/vault-agent-docker/main/example/docker-agent_diagram.drawio.png)
+![](https://raw.githubusercontent.com/ia-mfriegang/vault-agent-docker/main/example/docker-agent_diagram.drawio.png)
 
 
 # Vault Agent Docker
