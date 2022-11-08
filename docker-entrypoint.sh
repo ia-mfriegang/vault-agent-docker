@@ -1,8 +1,8 @@
 #!/bin/bash
 # add custom ca cert if the "CUSTOM_CERT" variable is set to true
-if [[ $CUSTOM_CERT == 'True' ]] || [[ $CUSTOM_CERT == 'true' ]]
+if [[ $CUSTOM_CERT == 'True' ]] || [[ $CUSTOM_CERT == 'true' ]] && [ ! -f "/usr/share/ca-certificates/extra/$CUSTOM_CERT_NAME" ]
 then
-  mkdir /usr/share/ca-certificates/extra && echo $CUSTOM_CERT_NAME | tee -a /etc/ca-certificates.conf
+  mkdir -p /usr/share/ca-certificates/extra && echo extra/$CUSTOM_CERT_NAME | tee -a /etc/ca-certificates.conf
   cp /etc/vault.d/$CUSTOM_CERT_NAME /usr/share/ca-certificates/extra/$CUSTOM_CERT_NAME
   update-ca-certificates
 fi
