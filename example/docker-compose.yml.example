@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   vault-agent:
-    image: vault_agent_test
+    image: mfriegangia/vault-agent-docker:latest
     restart: always
     ports:
       - "8200:8200"
