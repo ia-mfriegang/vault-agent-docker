@@ -10,7 +10,7 @@ This repo contains a Dockerfile that creates an image with the following:
   - One role that contains the secrets you want to Vault. We will refer to this as the "regular role"
   - One role that can rotate the secret ID for the role that contains the secrets. We will refer to this as the "rotate role"
 
-- 2 Vault Policies (see examples)
+- 2 Vault Policies (see examples/terraform)
   - one policy for the regular role. This policy can access the path containing the secrets.
   - one policy for the rotate role. This policy can only generate new secret IDs for the regular role.
 
