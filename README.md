@@ -36,7 +36,23 @@ This repo contains a Dockerfile that creates an image with the following:
 2022-11-08T19:34:22.912Z [INFO]  sink.file: token written: path=/etc/vault.d/sink
 2022-11-08T19:34:23.092Z [INFO]  auth.handler: renewed auth token
 ```
+## Optional Config
+#### Quit API
+You can use the `/agent/v1/quit` endpoint to cause the agent to stop running if enabled. This can be useful if the agent is writing out a wrapped sink file, and you'd like some other app to be able to signal to the agent that the sink needs to be rotated. As long as the container's restart policy is set to "always", it should run the entrypoint script again and regenerate the wrapped sink.
 
+To enable it, add this snippet to your config:
+
+```
+listener "tcp" {
+  address = "0.0.0.0:8100"
+  tls_disable = true
+  require_request_header = true
+  agent_api {
+    enable_quit = true
+  }
+}
+```
+Another docker container from the same stack could then curl it `curl --header "X-Vault-Request: true" -X POST http://vault-agent:8100/agent/v1/quit`, which would cause the agent to restart. Or, from the host machine `curl --header "X-Vault-Request: true" -X POST http://localhost:8100/agent/v1/quit`
 ## Troubleshooting
 1. exec into container `docker exec -it vault-agent bash`
 2. Run this command to see if the entrypoint script can write tokens:
