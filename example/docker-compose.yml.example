@@ -5,7 +5,7 @@ services:
     image: mfriegangia/vault-agent-docker:latest
     restart: always
     ports:
-      - "8200:8200"
+      - "8100:8100"
     volumes:
       - ./config:/etc/vault.d
       - ./sink:/sink
@@ -14,33 +14,3 @@ services:
     #  CUSTOM_CERT: "true"                       # optional
     #  CUSTOM_CERT_NAME: yourrootcert.pem        # optional
     container_name: vault-agent
-
-
-version: '3.7'
-
-services:
-  vault-agent:
-    image: mfriegangia/vault-agent-docker
-    restart: always
-    ports:
-      - "8100:8100"
-    volumes:
-      - ./config:/etc/vault.d
-      - ./sink:/sink
-    environment:
-      VAULT_ADDR: "https://itvault.ia.local:8200"
-      CUSTOM_CERT: "true"
-      CUSTOM_CERT_NAME: iacloudroot.pem
-    container_name: vault-agent
-    networks:
-      - vault-agent
-  ubuntu:
-    image: ubuntu:20.04
-    networks:
-      - vault-agent
-    volumes:
-      - ./sink:/sink
-    container_name: client
-    command: tail -f /dev/null
-networks:
-  vault-agent:
