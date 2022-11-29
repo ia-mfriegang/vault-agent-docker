@@ -1,0 +1,40 @@
+pid_file = "/var/run/vault-agent/pidfile"
+
+vault {
+  address = "{{ vault_addr }}"
+  retry {
+    num_retries = 2
+  }
+}
+
+auto_auth {
+  method "approle" {
+    config = {
+      role_id_file_path                     = "/etc/vault.d/roleid.txt"
+      secret_id_file_path                   = "/etc/vault.d/wrapped_secret_id"
+      secret_id_response_wrapping_path      = "auth/approle/role/auto-snapshot/secret-id"
+      remove_secret_id_file_after_reading   = true
+    }
+    exit_on_err = true
+    max_backoff = "2s"
+    }
+    sink "file" {
+    config = {
+      path = "/sink/vault_sink"
+      mode = 0644
+    }
+  }
+
+}
+cache {
+  use_auto_auth_token = true
+}
+
+listener "tcp" {
+  address = "0.0.0.0:8100"
+  tls_disable = true
+  require_request_header = true
+  #agent_api {
+  #  enable_quit = true
+  #}
+}

@@ -1,0 +1,28 @@
+FROM ubuntu:22.04
+ARG DEBIAN_FRONTEND=noninteractive
+# Install dependencies.
+RUN apt update \
+    && apt install -y --no-install-recommends \
+       iputils-ping \
+       vim \
+       software-properties-common \
+       wget \
+       iproute2 \
+       apt-utils \
+       cron \
+       curl \
+       unzip \
+       python3-pip \
+       ca-certificates \
+    && apt clean \
+    && rm -Rf /var/lib/apt/lists/* \
+    && rm -Rf /usr/share/doc && rm -Rf /usr/share/man
+# add hashicorp repo and install Vault
+RUN wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor |  tee /usr/share/keyrings/hashicorp-archive-keyring.gpg && echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" |  tee /etc/apt/sources.list.d/hashicorp.list && chmod 644 /etc/apt/sources.list.d/hashicorp.list && apt update && apt install vault && setcap -r /usr/bin/vault
+# Install aws cli
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip" && unzip /tmp/awscliv2.zip -d /tmp && /tmp/aws/install
+# install backup rotate pip package
+RUN python3 -m pip install rotate-backups
+COPY ./docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh
+ENTRYPOINT ["/docker-entrypoint.sh"]

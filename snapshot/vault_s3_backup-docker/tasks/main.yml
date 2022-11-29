@@ -1,0 +1,98 @@
+
+- name: Check if UFW is enabled.
+  ansible.builtin.shell: ufw status
+  register: ufw
+  changed_when: false
+
+# here we are checking if UFW is enabled, as well as if it already allows port 8200 outbound
+# this is required for the vault secret lookup
+- name: Allow port 8200 outbound temporarily to allow communication to Vault
+  ansible.builtin.command: "sudo ufw allow out 8200"
+  when: '"Status: active" in ufw.stdout and "8200                       ALLOW OUT" not in ufw.stdout'
+  changed_when: false
+
+# we also need the hvac pip module for the vault lookup
+- name: Make sure python3-pip is installed
+  ansible.builtin.apt:
+    name: python3-pip
+    state: present
+    update_cache: true
+  register: pipinstall
+  retries: 5
+  until: pipinstall is success
+
+- name: Install hvac pip module to read vault secrets
+  ansible.builtin.pip:
+    name: hvac
+    state: present
+
+- name: Read secrets from Vault
+  community.hashi_vault.vault_kv2_get:
+    url: "{{  vault_addr  }}"
+    path: "awx/{{ dept }}_vault_snapshot"
+    role_id: "{{ lookup('ansible.builtin.env', 'VAULT_ROLE_ID') }}"
+    secret_id: "{{ lookup('ansible.builtin.env', 'VAULT_SECRET_ID') }}"
+    auth_method: approle
+    ca_cert: /usr/share/ca-certificates/extra/iacloudroot1.pem
+  register: vault_secrets
+  no_log: false
+  when: datadog_host is not defined
+
+- name: Install docker related packages
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - docker-compose
+    state: present
+    update_cache: true
+    register: dockerinstall
+    retries: 5
+    until: dockerinstall is success
+
+- name: Crate directories
+  ansible.builtin.file:
+    state: directory
+    path: "{{  item  }}"
+    owner: root
+    group: root
+    mode: 0750
+  with_items:
+    - "/opt/vault-backup/{{ dept }}"
+    - "/opt/vault-backup/{{ dept }}/vault-agent"
+    - "/opt/vault-backup/{{ dept }}/vault-agent/config"
+    - "/opt/vault-backup/{{ dept }}/secrets"
+    - "/opt/vault-backup/{{ dept }}/crontab"
+    - "/opt/vault-backup/{{ dept }}/.aws"
+
+- name: Template docker related items
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: 0640
+  with_items:
+    - {"src": "templates/Dockerfile.j2", "dest": "/opt/vault-backup/{{ dept }}/Dockerfile"}
+    - {"src": "templates/docker-compose.yml.j2", "dest": "/opt/vault-backup/{{ dept }}/docker-compose.yml"}
+    - {"src": "templates/docker-entrypoint.sh.j2", "dest": "/opt/vault-backup/{{ dept }}/docker-entrypoint.sh"}
+    - {"src": "templates/vault-agent.hcl.j2", "dest": "/opt/vault-backup/{{ dept }}/vault-agent/config/vault-agent.hcl"}
+    - {"src": "templates/crontab.j2", "dest": "/opt/vault-backup/{{ dept }}/crontab/vault"}
+
+- name: Template secrets
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: 0600
+  with_items:
+    - {"src": "templates/.aws.j2", "dest": "/opt/vault-backup/{{ dept }}/.aws/credentials"}
+    - {"src": "templates/VAULT_ROLE_ID.j2", "dest": "/opt/vault-backup/{{ dept }}/secrets/VAULT_ROLE_ID"}
+    - {"src": "templates/VAULT_ROTATE_ROLE_ID.j2", "dest": "/opt/vault-backup/{{ dept }}/secrets/VAULT_ROTATE_ROLE_ID"}
+    - {"src": "templates/VAULT_ROTATE_SECRET_ID.j2", "dest": "/opt/vault-backup/{{ dept }}/secrets/VAULT_ROTATE_SECRET_ID"}
+
+- name: Create docker compose stack
+  community.docker.docker_compose:
+    build: true
+    project_src: "/opt/vault-backup/{{ dept }}"
+    state: present

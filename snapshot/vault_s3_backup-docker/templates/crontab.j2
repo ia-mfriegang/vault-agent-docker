@@ -1,0 +1,1 @@
+0 00 * * * export now="$(date +'%Y-%m-%d:%H')" && VAULT_TOKEN=$(cat /sink/vault_sink) vault operator raft snapshot save /var/backups/vault/$now.snap && aws s3 cp /var/backups/vault/ s3://{{ dept }}-vault-snapshots --recursive && rotate-backups -d 30 -w 8 -m 24 -y 100 /var/backups/vault && curl -fsS -m 10 --retry 5 -o /dev/null {{ vault_secrets.secret.healthcheck_url }}

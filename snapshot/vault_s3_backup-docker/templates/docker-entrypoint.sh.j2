@@ -1,0 +1,7 @@
+#!/bin/bash
+crontab -r
+crontab /crontab/vault
+crontab -l
+#crontab /crontab/vault
+mkdir -p /var/backups/vault
+tail -f /dev/null

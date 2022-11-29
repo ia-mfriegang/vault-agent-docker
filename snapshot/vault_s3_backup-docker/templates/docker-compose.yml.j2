@@ -1,0 +1,44 @@
+version: '3.5'
+services:
+  vault-agent:
+    image: mfriegangia/vault-agent-docker
+    hostname: vault-agent
+    volumes:
+      - ./vault-agent/config:/etc/vault.d
+      - {{ dept }}-vault-sink:/sink
+    networks:
+      default:
+        aliases:
+          - vault-agent
+    restart: always
+    environment:
+      VAULT_ADDR: {{ vault_addr }}
+      CUSTOM_CERT: "true" 
+      CUSTOM_CERT_NAME: iacloudroot.pem 
+      VAULT_ROLE_NAME: auto-snapshot
+    secrets:
+      - vault-roleid
+      - vault-rotate-roleid
+      - vault-rotate-secretid
+  vault-snapshot:
+    image: vault-snapshot
+    build:
+      context: /opt/vault-backup/{{ dept }}/
+      dockerfile: ./Dockerfile
+    volumes: 
+      - {{ dept }}-vault-sink:/sink
+      - ./crontab:/crontab
+      - {{ dept }}-snapshots:/var/backups/vault
+      - ./.aws:/root/.aws
+    environment:
+      VAULT_ADDR: {{ vault_addr }}
+volumes:
+  {{ dept }}-vault-sink:
+  {{ dept }}-snapshots:
+secrets:
+  vault-roleid:
+    file: ./secrets/VAULT_ROLE_ID
+  vault-rotate-roleid:
+    file: ./secrets/VAULT_ROTATE_ROLE_ID
+  vault-rotate-secretid:
+    file: ./secrets/VAULT_ROTATE_SECRET_ID
